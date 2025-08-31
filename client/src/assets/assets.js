@@ -320,6 +320,9 @@ export const dummyPendingConnectionsData = [
 // npm install helmet : for securing HTTP headers
 // npm install --save-dev nodemon : A development tool that automatically restarts the server when file changes are detected.
 // npm install inngest : for serverless functions and event-driven architecture
+// npm install @clerk/express : user authentication and user management platform
+// npm install imagekit --save : for image and video management
+// npm install nodemailer : for sending emails
 
 
 
