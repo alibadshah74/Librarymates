@@ -1,8 +1,15 @@
 import ImageKit from "imagekit";
 
-if (!process.env.IMAGEKIT_PUBLIC_KEY) {
-    console.log("Publickey is undefined")
-  throw new Error("Missing IMAGEKIT_PUBLIC_KEY");
+const required = [
+  "IMAGEKIT_PUBLIC_KEY",
+  "IMAGEKIT_PRIVATE_KEY",
+  "IMAGEKIT_URL_ENDPOINT",
+];
+
+for (const key of required) {
+  if (!process.env[key]) {
+    throw new Error(` Missing environment variable: ${key}`);
+  }
 }
 
 var imagekit = new ImageKit({
@@ -10,5 +17,7 @@ var imagekit = new ImageKit({
     privateKey : process.env.IMAGEKIT_PRIVATE_KEY,
     urlEndpoint : process.env.IMAGEKIT_URL_ENDPOINT,
 });
+
+console.log("✅ ImageKit initialized with publicKey:", process.env.IMAGEKIT_PUBLIC_KEY ? "Present" : "Missing");
 
 export default imagekit
