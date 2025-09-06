@@ -368,6 +368,8 @@ export const dummyPendingConnectionsData = [
 // JSX (JavaScript XML) : A syntax extension for JavaScript that allows you to write HTML-like code within JavaScript, commonly used in React applications.
 // Fragment : A lightweight container that groups multiple elements without adding extra nodes to the DOM.
 // Virtual DOM : A lightweight representation of the actual DOM that React uses to optimize rendering and improve performance.
+// Reconciliation : The process by which React updates the DOM to match the virtual DOM, minimizing changes and improving performance.
+// API endpoints routes : Specific URLs in a web application that correspond to different API functions, allowing clients to interact with the server and access data.
 
 // concept about component file and folder structure
 // Component files are typically organized in a way that reflects the structure of the application.
