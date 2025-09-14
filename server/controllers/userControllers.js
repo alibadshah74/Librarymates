@@ -44,7 +44,7 @@ export const updateUserData = async (req, res) => {
             username,
             bio,
             location,
-            full_name
+            full_name,
         }
 
         const profile = req.files.profile && req.files.profile[0]
@@ -72,7 +72,7 @@ export const updateUserData = async (req, res) => {
             const buffer = fs.readFileSync(cover.path)
             const response = await imagekit.upload({
                 file: buffer,
-                fileName: profile.originalname,
+                fileName: cover.originalname,
             })
 
             const url = imagekit.url({
@@ -126,7 +126,7 @@ export const discoverUsers = async (req, res) => {
 export const followUser = async (req, res) => {
     try {
         const { userId } = req.auth()
-        const { i } = req.body;
+        const { id } = req.body;
 
         const user = await User.findById(userId)
         
@@ -153,7 +153,7 @@ export const followUser = async (req, res) => {
 export const unfollowUser = async (req, res) => {
     try {
         const { userId } = req.auth()
-        const { i } = req.body;
+        const { id } = req.body;
 
         const user = await User.findById(userId)
         user.following = user.following.filter(ser => user !== id);
@@ -179,7 +179,7 @@ export const sendConnectionRequest = async (req, res) => {
 
         // Check if User has sent more then 20 connection requests in the last 24 hours
         const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000)
-        const connectionRequests = await Connection.find({from_user_id: userId, created_at: {$get: last24Hours}})
+        const connectionRequests = await Connection.find({from_user_id: userId, createdAt: {$gt: last24Hours}})
         if(connectionRequests.length >= 20){
             return res.json({success: false, message: 'You have sent more than 20 connection requests in the last 24 hours'})
         }

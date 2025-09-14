@@ -305,6 +305,9 @@ export const dummyPendingConnectionsData = [
 // npm install react-router-dom : for routing
 // npm install moment : date manipulation library
 // npm install react-hot-toast : for toast notifications
+// npm install react-redux : for state management
+// npm install @reduxjs/toolkit : for efficient Redux development
+// npm install axios : for making HTTP requests
 
 //server-NPM : List
 // npm init -y : for initializing a new Node.js project
