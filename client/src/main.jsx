@@ -5,7 +5,7 @@ import {BrowserRouter} from 'react-router-dom'
 import { ClerkProvider } from '@clerk/clerk-react'
 import { Provider } from 'react-redux'
 import { store } from './app/store.js'
-import InitUser from './components/Inituser.jsx'
+import InitUser from '../components/InitUser.jsx'
 
 
 
