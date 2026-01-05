@@ -17,6 +17,7 @@ import { fetchUser } from './features/user/userSlice'
 import { fetchConnections } from './features/connections/connectionsSlice'
 import { addMessage } from './features/messages/messagesSlice'
 import Notification from './components/Notification'
+import PostView from './pages/PostView'
 
 const App = () => {
   const {user} = useUser()
@@ -45,7 +46,7 @@ const App = () => {
   useEffect(()=> {
     if(user){
       const eventSource = new EventSource(import.meta.env.VITE_BASEURL + '/api/message/' + user.id);
-
+      
       eventSource.onmessage = (event)=>{
         const message = JSON.parse(event.data)
 
@@ -75,6 +76,7 @@ const App = () => {
          <Route path='profile' element={<Profile/>}/>
          <Route path='profile/:profileId' element={<Profile/>}/>
          <Route path='create-post' element={<CreatePost/>}/>
+         <Route path='/post/:id' element={<PostView />} />
         </Route>
       </Routes>
     </>

@@ -7,7 +7,8 @@ const initialState = {
     value: null
 }
 
-export const fetchUser =  createAsyncThunk('user/fetchUser', async ( token ) => {
+export const fetchUser =  createAsyncThunk('user/fetchUser', async ( token, { rejectWithValue } ) => {
+    if (!token) return rejectWithValue('NO_TOKEN')
     const { data } = await api.get('/api/user/data', {
         headers: {Authorization: `Bearer ${token}`}
     })

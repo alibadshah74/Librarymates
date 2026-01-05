@@ -16,14 +16,9 @@ const Connections = () => {
   const { getToken } = useAuth()
   const dispatch = useDispatch()
 
-  const { connections, pendingConnections, followers, following } = useSelector((state)=>state.connections)
+ //const { connections, pendingConnections, followers, following } = useSelector((state)=>state.connections)
 
-  const dataArray = [
-    {label: 'Followers', value: followers, icon: Users },
-    {label: 'Following', value: following, icon: UserCheck },
-    {label: 'Pending', value: pendingConnections, icon: UserRoundPen },
-    {label: 'Connections', value: connections, icon: UserPlus },
-  ]
+
   
   const handleUnfollow = async (userId) => {
     try {
@@ -69,8 +64,8 @@ const Connections = () => {
 
       {/* Title  */}
       <div className='mb-8'>
-        <h1 className='text-3xl font-bold text-slate-900 mb-2'>Connections</h1>
-        <p className='text-slate-600'>Manage your network and discover new connections</p>
+        <h1 className='text-3xl font-bold text-slate-900 mb-2'>Connection</h1>
+        <p className='text-slate-600'>Manage your Connection and make beautiful life.</p>
       </div>
 
       {/* Counts  */}
@@ -100,7 +95,7 @@ const Connections = () => {
 
       </div>
 
-      {/* Connections  */}
+      {/* Connections */}
       <div className='flex flex-wrap gap-6 mt-6'>
         {dataArray.find((item)=>item.label=== currentTab).value.map((user)=>(
           <div key={user._id} className='w-full max-w-88 flex gap-5 p-6 bg-white shadow rounded-md'>
@@ -141,7 +136,7 @@ const Connections = () => {
             </div>
           </div>
         ))}
-      </div>
+      </div> 
 
       </div>
       

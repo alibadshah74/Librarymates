@@ -3,7 +3,7 @@ import sample_cover from './sample_cover.jpg'
 import sample_profile from './sample_profile.jpg'
 import bgImage from './bgImage.png'
 import group_users from './group_users.png'
-import { Home, MessageCircle, Search, UserIcon, Users } from 'lucide-react'
+import { Bookmark, Delete, Download, Edit, EyeOff, Home, MessageCircle, Search, UserIcon, Users } from 'lucide-react'
 import sponsored_img from './sponsored_img.png'
 
 export const assets = {
@@ -22,6 +22,14 @@ export const menuItemsData = [
     { to: '/discover', label: 'Discover', Icon: Search },
     { to: '/profile', label: 'Profile', Icon: UserIcon },
 ];
+
+export const contextMenuData = [
+    { id: '/edit', label: 'Edit', allowFor: 'owner', Icon: Edit },
+    { id: '/download', label: 'Download', Icon: Download },
+    { id: '/save', label: 'Save', Icon: Bookmark },
+    { id: '/not_interested', label: 'Not Interested', Icon: EyeOff },
+    { id: '/delete', label: 'Delete', allowFor: 'owner', danger: true, Icon: Delete }
+]
 
 export const dummyUserData = {
     "_id": "user_2zdFoZib5lNr614LgkONdD8WG32",

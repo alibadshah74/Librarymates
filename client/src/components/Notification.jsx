@@ -3,7 +3,7 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 
 const Notification = ({t, message}) => {
-
+console.log(t)
 const navigate = useNavigate()
 
   return (
