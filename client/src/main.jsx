@@ -5,7 +5,8 @@ import {BrowserRouter} from 'react-router-dom'
 import { ClerkProvider } from '@clerk/clerk-react'
 import { Provider } from 'react-redux'
 import { store } from './app/store.js'
-import Inituser from './components/Inituser.jsx'
+import InitUser from './components/InitUser.jsx'
+ 
 
 
 
@@ -21,7 +22,7 @@ createRoot(document.getElementById('root')).render(
     
     <BrowserRouter>
     <Provider store={store}>
-      <Inituser />
+      <InitUser />
        <App />
     </Provider>
     </BrowserRouter>
