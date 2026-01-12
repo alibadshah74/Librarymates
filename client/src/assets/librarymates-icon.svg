@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="50%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#4F46E5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Open Book -->
+  <path d="M40 70
+           C40 55, 65 50, 95 55
+           L120 60
+           L120 200
+           L95 195
+           C65 190, 40 195, 40 175
+           Z"
+        fill="url(#grad)"/>
+
+  <path d="M216 70
+           C216 55, 191 50, 161 55
+           L136 60
+           L136 200
+           L161 195
+           C191 190, 216 195, 216 175
+           Z"
+        fill="url(#grad)"/>
+
+  <!-- Center Line -->
+  <line x1="128" y1="60" x2="128" y2="200"
+        stroke="#6366F1" stroke-width="4"/>
+
+  <!-- Mates -->
+  <circle cx="95" cy="95" r="12" fill="#4F46E5"/>
+  <circle cx="161" cy="95" r="12" fill="#7C3AED"/>
+</svg>
