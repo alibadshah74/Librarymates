@@ -1,12 +1,11 @@
 import { ImageIcon, SendHorizonal, X } from "lucide-react"
 import { React, useEffect, useState } from "react"
 import api from "../api/axios"
-import { useAuth, useUser } from "@clerk/clerk-react"
+import { useAuth } from "@clerk/clerk-react"
 import toast from "react-hot-toast"
 
 const CommentsView = ({ postId, comments, setComments, onClose }) => {
   const { getToken } = useAuth()
-  const { user } = useUser()
   const [text, setText] = useState('')
   const [image, setImage] = useState(null)
   const [replyTo, setReplyTo] = useState(null)

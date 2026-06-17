@@ -1,34 +1,32 @@
-import logo from './logo.svg'
 import sample_cover from './sample_cover.jpg'
 import sample_profile from './sample_profile.jpg'
 import bgImage from './bgImage.png'
 import group_users from './group_users.png'
-import { Bookmark, Delete, Download, Edit, EyeOff, Home, MessageCircle, Search, UserIcon, Users } from 'lucide-react'
+import { Delete, Download, Edit, FileText, Home, MessageCircle, Search, UserIcon } from 'lucide-react'
 import sponsored_img from './sponsored_img.png'
+import librarymatesIcon from './librarymates-icon.svg'
 
 export const assets = {
-    logo,
     sample_cover,
     sample_profile,
     bgImage,
     group_users,
-    sponsored_img
+    sponsored_img,
+    librarymatesIcon
 }
 
 export const menuItemsData = [
     { to: '/', label: 'Feed', Icon: Home },
+    { to: '/study-materials', label: 'Study Materials', Icon: FileText },
     { to: '/messages', label: 'Messages', Icon: MessageCircle },
-    { to: '/connections', label: 'Connections', Icon: Users },
     { to: '/discover', label: 'Discover', Icon: Search },
     { to: '/profile', label: 'Profile', Icon: UserIcon },
 ];
 
 export const contextMenuData = [
-    { id: '/edit', label: 'Edit', allowFor: 'owner', Icon: Edit },
-    { id: '/download', label: 'Download', Icon: Download },
-    { id: '/save', label: 'Save', Icon: Bookmark },
-    { id: '/not_interested', label: 'Not Interested', Icon: EyeOff },
-    { id: '/delete', label: 'Delete', allowFor: 'owner', danger: true, Icon: Delete }
+    { id: 'download', label: 'Download', Icon: Download },
+    { id: 'edit', label: 'Edit', allowFor: 'owner', Icon: Edit },
+    { id: 'delete', label: 'Delete', allowFor: 'owner', danger: true, Icon: Delete }
 ]
 
 export const dummyUserData = {
@@ -42,7 +40,6 @@ export const dummyUserData = {
     "location": "New York, NY",
     "followers": ["user_2", "user_3"],
     "following": ["user_2", "user_3"],
-    "connections": ["user_2", "user_3"],
     "posts": [],
     "is_verified": true,
     "createdAt": "2025-07-09T09:26:59.231Z",
@@ -283,12 +280,6 @@ export const dummyMessagesData = [
     },
 ]
 
-export const dummyConnectionsData = [
-    dummyUserData,
-    dummyUser2Data,
-    dummyUser3Data
-]
-
 export const dummyFollowersData = [
     dummyUser2Data,
     dummyUser3Data
@@ -298,14 +289,6 @@ export const dummyFollowingData = [
     dummyUser2Data,
     dummyUser3Data
 ]
-
-export const dummyPendingConnectionsData = [
-    dummyUserData
-]
-
-
-
-
 
 // Client-NPM : list
 // npm install lucide-react : for icons

@@ -1,77 +1,130 @@
-import React, { useEffect, useState } from 'react'
-import { dummyConnectionsData } from '../assets/assets'
-import { Search } from 'lucide-react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Search, Users } from 'lucide-react'
 import UserCard from '../components/UserCard'
 import Loading from '../components/Loading'
 import api from '../api/axios'
 import { useAuth } from '@clerk/clerk-react'
 import toast from 'react-hot-toast'
-import { useDispatch } from 'react-redux'
-import { fetchUser } from '../features/user/userSlice'
 
 const Discover = () => {
-
-  const dispatch = useDispatch()
   const [input, setInput] = useState('')
+  const [search, setSearch] = useState('')
   const [users, setUsers] = useState([])
-  const [loading, setloading] = useState(false)
+  const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 })
+  const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const { getToken } = useAuth()
+  const requestIdRef = useRef(0)
 
-  const handleSearch  = async (e)=>{
-    if(e.key === 'Enter'){
-     try {
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSearch(input.trim())
+    }, 350)
+
+    return () => clearTimeout(timeout)
+  }, [input])
+
+  const fetchUsers = useCallback(async (page = 1) => {
+    if (search.trim().length < 3) {
       setUsers([])
-      setloading(true)
-      const { data } = await api.post('/api/user/discover', {input}, {
-        headers: { Authorization: `Bearer ${await getToken()}`}
-      })
-      data.success ? setUsers(data.users) : toast.error(data.message)
-      setloading(false)
-      setInput('')
-     } catch (error) {
-      toast.error(error.message)
-     }
-     setloading(false)
+      setPagination({ page: 1, pages: 1, total: 0 })
+      setLoading(false)
+      setLoadingMore(false)
+      return
     }
-  }
 
-  useEffect(()=>{
-    getToken().then((token)=>{
-      dispatch(fetchUser(token))
-    })
-  },[])
+    const requestId = requestIdRef.current + 1
+    requestIdRef.current = requestId
 
+    try {
+      page === 1 ? setLoading(true) : setLoadingMore(true)
+      const { data } = await api.post('/api/user/discover', { input: search, page, limit: 12 }, {
+        headers: { Authorization: `Bearer ${await getToken()}` }
+      })
+
+      if (requestId !== requestIdRef.current) return
+
+      if (data.success) {
+        setUsers((prev) => page === 1 ? data.users : [...prev, ...data.users])
+        setPagination(data.pagination)
+      } else {
+        toast.error(data.message)
+      }
+    } catch (error) {
+      if (requestId === requestIdRef.current) {
+        toast.error(error.message)
+      }
+    } finally {
+      if (requestId === requestIdRef.current) {
+        setLoading(false)
+        setLoadingMore(false)
+      }
+    }
+  }, [getToken, search])
+
+  useEffect(() => {
+    setPagination({ page: 1, pages: 1, total: 0 })
+    fetchUsers(1)
+  }, [fetchUsers])
+
+  const hasMore = useMemo(() => pagination.page < pagination.pages, [pagination])
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-slate-50 to-white'>
+    <div className='min-h-screen bg-slate-50'>
       <div className='max-w-6xl mx-auto p-6'>
-
-      {/* Title  */}
-      <div className='mb-8'>
-        <h1 className='text-3xl font-bold text-slate-900 mb-2'>Discover People</h1>
-        <p className='text-slate-600'>Connect with amazing people and grow your network</p>
-      </div>
-
-      {/* Search  */}
-      <div className='mb-8 shadow-md rounded-md border border-slate-200/60 bg-white/80'>
-        <div className='p-6'>
-          <div className='relative'>
-            <Search className='absolute left-3 top-1/2 translate -translate-y-1/2 text-slate-400 w-5 h-5'/>
-            <input type="text" placeholder='Search people by name, username, bio, or location...' className='pl-10 sm:pl-12 py-2 w-full border border-gray-300 rounded-md max-sm:text-sm' onChange={(e) =>setInput(e.target.value)} value={input} onKeyUp={handleSearch}/>
-          </div>
+        <div className='mb-8'>
+          <h1 className='text-3xl font-bold text-slate-900 mb-2'>Discover People</h1>
+          <p className='text-slate-600'>Find classmates, educators, and resource contributors.</p>
         </div>
-      </div>
 
-      <div className='flex flex-wrap gap-6'>
-        {users.map((user)=>(
-          <UserCard user={user} key={user._id}/>
-        ))}
-      </div>
+        <div className='mb-6 rounded-lg border border-slate-200 bg-white p-4 shadow-sm'>
+          <div className='relative'>
+            <Search className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5' />
+            <input
+              type='search'
+              placeholder='Search by username or display name...'
+              className='w-full rounded-md border border-gray-200 py-2 pl-10 pr-3 text-sm outline-none focus:border-indigo-400'
+              onChange={(e) => setInput(e.target.value)}
+              value={input}
+            />
+          </div>
+          <p className='mt-3 text-sm text-slate-500'>{pagination.total} people found</p>
+          {input.trim().length > 0 && input.trim().length < 3 && (
+            <p className='mt-2 text-xs text-slate-400'>Enter at least 3 characters to search.</p>
+          )}
+        </div>
 
-      {
-        loading && (<Loading height='60vh'/>)
-      }
+        {loading ? (
+          <Loading height='50vh' />
+        ) : (
+          <>
+            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3'>
+              {users.map((user) => (
+                <UserCard user={user} key={user._id} />
+              ))}
+            </div>
 
+            {users.length === 0 && (
+              <div className='rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center'>
+                <Users className='mx-auto mb-3 size-10 text-slate-300' />
+                <p className='font-medium text-slate-700'>No people found</p>
+                <p className='mt-1 text-sm text-slate-500'>Try a different username or display name.</p>
+              </div>
+            )}
+
+            {hasMore && (
+              <div className='mt-6 flex justify-center'>
+                <button
+                  disabled={loadingMore}
+                  onClick={() => fetchUsers(pagination.page + 1)}
+                  className='rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:border-indigo-200 hover:text-indigo-700 disabled:opacity-60'
+                >
+                  {loadingMore ? 'Loading...' : 'Load more'}
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   )

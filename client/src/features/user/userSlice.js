@@ -4,7 +4,9 @@ import toast from 'react-hot-toast'
 
 
 const initialState = {
-    value: null
+    value: null,
+    loading: false,
+    error: null
 }
 
 export const fetchUser =  createAsyncThunk('user/fetchUser', async ( token, { rejectWithValue } ) => {
@@ -12,7 +14,8 @@ export const fetchUser =  createAsyncThunk('user/fetchUser', async ( token, { re
     const { data } = await api.get('/api/user/data', {
         headers: {Authorization: `Bearer ${token}`}
     })
-    return data.success ? data.user : null
+    if (!data.success) return rejectWithValue(data.message || 'User not found')
+    return data.user
 })
 
 export const updateUser =  createAsyncThunk('user/update', async ( {userData, token} ) => {
@@ -35,8 +38,17 @@ const userSlice = createSlice({
         
     },
     extraReducers: (builder)=>{
-        builder.addCase(fetchUser.fulfilled, (state, action)=>{
+        builder.addCase(fetchUser.pending, (state)=>{
+            state.loading = true
+            state.error = null
+        }).addCase(fetchUser.fulfilled, (state, action)=>{
             state.value = action.payload
+            state.loading = false
+            state.error = null
+        }).addCase(fetchUser.rejected, (state, action)=>{
+            state.value = null
+            state.loading = false
+            state.error = action.payload || action.error.message
         }).addCase(updateUser.fulfilled, (state, action)=>{
             state.value = action.payload
         })

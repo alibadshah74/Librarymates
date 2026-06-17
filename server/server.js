@@ -10,6 +10,7 @@ import postRouter from './routes/postRoutes.js';
 import storyRouter from './routes/storyRoutes.js';
 import messageRouter from './routes/messageRoutes.js';
 import commentRouter from './routes/commentRoutes.js';
+import studyMaterialRouter from './routes/studyMaterialRoutes.js';
 
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/post', postRouter)
 app.use('/api/story', storyRouter)
 app.use('/api/message', messageRouter)
 app.use('/api/comment', commentRouter)
+app.use('/api/study-materials', studyMaterialRouter)
 
 
 const PORT = process.env.PORT || 4000;

@@ -1,11 +1,18 @@
 import fs from 'fs'
 import imagekit from '../configs/imageKit.js';
 import Message from '../models/Message.js';
-import { useId } from 'react';
+import User from '../models/User.js';
 
 
 // create an empty object to store ss Event connections
 const connections = {};
+
+const areMates = async (userId, otherUserId) => {
+    const user = await User.findById(userId).select('followers following')
+    if (!user) return false
+
+    return user.following.includes(otherUserId) || user.followers.includes(otherUserId)
+}
 
 // controller function for SSE endpoint
 export const sseController = (req, res) => {
@@ -38,6 +45,10 @@ export const sendMessage = async (req, res) => {
         const { userId } = req.auth();
         const { to_user_id, text } = req.body;
         const image = req.file;
+
+        if (!await areMates(userId, to_user_id)) {
+            return res.json({ success: false, message: 'You can message only accepted mates' })
+        }
 
         let media_url = '';
         let message_type = image ? 'image' : 'text';
@@ -87,6 +98,10 @@ export const getChatMessages = async (req,res) => {
     try {
         const { userId } = req.auth();
         const { to_user_id } = req.body;
+
+        if (!await areMates(userId, to_user_id)) {
+            return res.json({ success: false, message: 'You can message only accepted mates' })
+        }
 
         const messages = await Message.find({
             $or: [

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { assets, dummyPostsData } from '../assets/assets'
+import { assets } from '../assets/assets'
 import Loading from '../components/Loading'
 import StoriesBar from '../components/StoriesBar'
 import PostCard from '../components/PostCard'
 import RecentMessages from '../components/RecentMessages'
+import MateRequestsButton from '../components/MateRequestsButton'
 import { useAuth } from '@clerk/clerk-react'
 import toast from 'react-hot-toast'
 import api from '../api/axios'
@@ -36,7 +37,10 @@ const Feed = () => {
 
 
   return !loading ? (
-    <div className='h-full overflow-y-scroll no-scrollbar py-10 xl:pr-5 flex items-start justify-center xl:gap-8'>
+    <div className='relative h-full overflow-y-scroll no-scrollbar py-10 xl:pr-5 flex items-start justify-center xl:gap-8'>
+      <div className='fixed right-16 top-3 z-30 sm:absolute sm:right-5 sm:top-5 sm:z-10'>
+        <MateRequestsButton/>
+      </div>
       {/* Stories and post List */}
       <div>
         <StoriesBar/>

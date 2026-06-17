@@ -1,7 +1,7 @@
 import { ArrowLeft, Sparkle, TextIcon, Upload } from 'lucide-react'
 import React, { useState } from 'react'
 import toast from 'react-hot-toast'
-import { useAuth, useEmailLink } from '@clerk/clerk-react'
+import { useAuth } from '@clerk/clerk-react'
 import api from '../api/axios'
 
 const StoryModel = ({setShowModal, fetchStories}) => {
@@ -73,6 +73,7 @@ const StoryModel = ({setShowModal, fetchStories}) => {
 
             if(data.success){
                 setShowModal(false)
+                fetchStories?.()
                 toast.success("Story created successfully")
             }else{
                 toast.error(data.message)

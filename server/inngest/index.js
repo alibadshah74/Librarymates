@@ -1,12 +1,32 @@
 import { Inngest } from "inngest";
 import User from "../models/User.js";
-import Connection from "../models/Connection.js";
 import sendEmail from "../configs/nodeMailer.js";
 import Story from "../models/Story.js";
 import Message from "../models/Message.js";
 
 // Create a client to send and receive events
-export const inngest = new Inngest({ id: "pingup-app" });
+export const inngest = new Inngest({ id: "study-mate-app" });
+
+const normalizeUsername = (value = '') => value
+    .toString()
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, '')
+    .slice(0, 40)
+
+const generateUniqueUsername = async (baseUsername) => {
+    const base = normalizeUsername(baseUsername) || `student_${Date.now()}`
+    const exists = (username) => User.exists({ $or: [{ usernameSearch: username }, { username }] })
+
+    if (!await exists(base)) return base
+
+    let suffix = 1
+    let candidate = `${base}_${suffix}`
+    while (await exists(candidate)) {
+        suffix += 1
+        candidate = `${base}_${suffix}`
+    }
+    return candidate
+}
 
 // Inngest Function to save user data to a database
 const syncUserCreation = inngest.createFunction(
@@ -14,14 +34,7 @@ const syncUserCreation = inngest.createFunction(
     {event: 'clerk/user.created'},
     async ({event}) =>{
         const {id, first_name, last_name, email_addresses, image_url} = event.data
-        let username = email_addresses[0].email_address.split('@')[0]
-
-        // Check availability of username
-        const user = await User.findOne({username})
-
-        if (user) {
-            username = username + Math.floor(Math.random() * 10000)
-        }
+        const username = await generateUniqueUsername(email_addresses[0].email_address.split('@')[0])
 
         const userData = {
             _id: id,
@@ -59,63 +72,6 @@ const syncUserDeletion = inngest.createFunction(
        const {id} = event.data
        await User.findByIdAndDelete(id)
     
-    }
-)
-
-// Inngest Function to send Reminder when a new connection request is added
-const sendNewConnectionRequestReminder = inngest.createFunction(
-    { id: "send-new-connection-request-reminder"},
-    { event: "app/connection-request"},
-    async (event, step) => {
-        const { connectionId } = event.data;
-
-        await step.run('send-connection-request-mail', async () => {
-            const connection = await Connection.findById(connectionId).populate('from_user_id to_user_id');
-            const subject = `New connection Request`;
-            const body = `
-            <div style="font-family: Arial, sans-serif; padding: 20px;"> 
-                <h2> Hi ${connection.to_user_id.full_name}, </h2>
-                <p>You have a new connection request from ${connection.from_user_id.full_name} - @${connection.from_user_id.username}</p>
-                <p> Click <a href="${process.env.FRONTEND_URL}/connections" style="color: #10b981;">here</a> to accept or reject the request </p>
-                <br/>
-                <p>Thanks,<br/>PingUp = Stay Connected</p>
-            </div>`;
-
-            await sendEmail({
-                to: connection.to_user_id.email,
-                subject,
-                body
-            })
-                
-        })
-        const in24Hours = new Date(Date.now() + 24 *60 * 60 * 1000)
-        await step.sleepUntil("wait-for-24-hours", in24Hours);
-        await step.run('send-connection-request-reminder', async () => {
-            const connection = await Connection.findById(connectionId).populate('from-user-id to_user_id');
-
-            if(connection.status === "accepted"){
-                return { message: "Already accepted"}
-            }
-
-            const subject = `New connection Request`;
-            const body = `
-            <div style="font-family: Arial, sans-serif; padding: 20px;"> 
-                <h2> Hi ${connection.to_user_id.full_name}, </h2>
-                <p>You have a new connection request from ${connection.from_user_id.full_name} - @${connection.from_user_id.username}</p>
-                <p> Click <a href="${process.env.FRONTEND_URL}/connections" style="color: #10b981;">here</a> to accept or reject the request </p>
-                <br/>
-                <p>Thanks,<br/>PingUp = Stay Connected</p>
-            </div>`;
-
-            await sendEmail({
-                to: connection.to_user_id.email,
-                subject,
-                body
-            })
-
-            return {message: "Reminder sent"}
-        })
-
     }
 )
 
@@ -157,7 +113,7 @@ const sendNotificationOfUnSeenMessages = inngest.createFunction(
                 <p>Yoh have ${unseenCount[userId]} unseen messages </p>
                 <p>Click <a href="${process.env.FRONTEND_URL}/messages" style="color: #10b981;">here</a> to view them</p>
                 <br />
-                <p>Thanks, <br />PingUp - Stay Connected</p>
+                <p>Thanks, <br />Study Mate</p>
             </div>
             `;
 
@@ -176,7 +132,6 @@ export const functions = [
     syncUserCreation,
     syncUserUpdation,
     syncUserDeletion,
-    sendNewConnectionRequestReminder,
     deleteStory,
     sendNotificationOfUnSeenMessages
 ];

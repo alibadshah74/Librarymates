@@ -8,27 +8,45 @@ const ContextItems = ({
   post,
   isOwner,
   closeMenu,
-  type // "post" | "comment"
+  onEditRequest,
+  onDeleted
 }) => {
   const { getToken } = useAuth()
+
+  const downloadPost = () => {
+    const lines = [
+      post?.user?.full_name ? `Author: ${post.user.full_name}` : '',
+      post?.createdAt ? `Posted: ${new Date(post.createdAt).toLocaleString()}` : '',
+      '',
+      post?.content || 'No text content',
+      '',
+      ...(post?.image_urls?.length ? ['Images:', ...post.image_urls] : [])
+    ].filter(Boolean)
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `librarymates-post-${post._id}.txt`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+    toast.success('Post downloaded')
+  }
 
   const handleAction = async (key) => {
     try {
       switch (key) {
-        case 'save':
-          toast.success('Post saved')
-          break
-
-        case 'not_interested':
-          toast.success('We will show fewer posts like this')
+        case 'download':
+          downloadPost()
           break
 
         case 'edit':
-          toast('Edit feature coming soon')
+          if (isOwner) onEditRequest?.()
           break
 
         case 'delete':
-          if (type === 'post') {
+          if (isOwner && window.confirm('Delete this post? It will be hidden from Librarymates but kept in storage.')) {
             const { data } = await api.delete(`/api/post/${post._id}`, {
               headers: {
                 Authorization: `Bearer ${await getToken()}`
@@ -37,6 +55,9 @@ const ContextItems = ({
 
             if (data.success) {
               toast.success('Post deleted')
+              onDeleted?.()
+            } else {
+              toast.error(data.message)
             }
           }
           break
@@ -65,7 +86,7 @@ const ContextItems = ({
               ${danger ? 'text-red-600 hover:bg-red-50' : ''}
             `}
           >
-            <Icon className="w-5 h-5" />
+            {React.createElement(Icon, { className: 'w-5 h-5' })}
             {label}
           </button>
         )

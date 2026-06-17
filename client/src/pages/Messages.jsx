@@ -1,25 +1,47 @@
-import React from 'react'
-import { dummyConnectionsData } from '../assets/assets'
+import React, { useEffect, useState } from 'react'
 import { Eye, MessageSquare } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useAuth } from '@clerk/clerk-react'
+import api from '../api/axios'
+import toast from 'react-hot-toast'
 
 const Messages = () => {
 
-  const { connections } = useSelector((state)=>state.connections)
+  const [people, setPeople] = useState([])
   const navigate = useNavigate()
+  const { getToken } = useAuth()
+
+  const fetchPeople = async () => {
+    try {
+      const { data } = await api.get('/api/user/network', {
+        headers: { Authorization: `Bearer ${await getToken()}` }
+      })
+      if (data.success) {
+        setPeople(data.people)
+      } else {
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
+
+  useEffect(() => {
+    fetchPeople()
+  }, [])
+
   return (
     <div className='min-h-screen relative bg-slate-50'>
       <div className='max-w-6xl mx-auto p-6'>
       {/* Title  */}
       <div>
         <h1 className='text-3xl font-bold text-slate-900 mb-2'>Messages</h1>
-        <p className='text-slate-600'>Talk to your friends and family</p>
+        <p className='text-slate-600'>Talk to classmates after a mate request is accepted.</p>
       </div>
 
-      {/* Connected Users  */}
+      {/* Message Users  */}
       <div className='flex flex-col gap-3'>
-        {connections.map((user)=>(
+        {people.map((user)=>(
           <div key={user._id} className='max-w-xl flex flex-warp gap-5 p-6 bg-white shadow rounded-md'>
             <img src={user.profile_picture} alt="" className='rounded-full size-12 mx-auto'/>
             <div className='flex-1'>
@@ -40,6 +62,11 @@ const Messages = () => {
             </div>
           </div>
         ))}
+        {people.length === 0 && (
+          <div className='max-w-xl p-6 bg-white shadow rounded-md text-sm text-slate-500'>
+            Accepted mates will appear here for messaging.
+          </div>
+        )}
       </div>
       </div>
     </div>

@@ -1,8 +1,15 @@
-import { Calendar, MapPin, PenBox, Verified } from 'lucide-react'
-import React from 'react'
+import { Calendar, MapPin, PenBox, Verified, X } from 'lucide-react'
+import React, { useState } from 'react'
 import moment from 'moment'
+import { useNavigate } from 'react-router-dom'
 
 const UserProfileInfo = ({user, posts, profileId, setShowEdit}) => {
+  const [listView, setListView] = useState(null)
+  const navigate = useNavigate()
+  const followers = user.followers || []
+  const following = user.following || []
+  const visiblePeople = listView === 'followers' ? followers : following
+
   return (
     <div className='relative py-4 px-6 md:px-8 bg-white'>
         <div className='flex flex-col md:flex-row items-start gap-6'>
@@ -42,17 +49,53 @@ const UserProfileInfo = ({user, posts, profileId, setShowEdit}) => {
                         <span className='sm:text-xl font-bold text-gray-900'>{posts.length}</span>
                         <span className='text-xs sm:text-sm text-gray-500 ml-1.5'>Posts</span>
                     </div>
-                    <div>
-                        <span className='sm:text-xl font-bold text-gray-900'>{user.followers.length}</span>
+                    <button onClick={() => setListView('followers')} className='text-left cursor-pointer hover:text-indigo-600'>
+                        <span className='sm:text-xl font-bold text-gray-900'>{followers.length}</span>
                         <span className='text-xs sm:text-sm text-gray-500 ml-1.5'>Followers</span>
-                    </div>
-                    <div>
-                        <span className='sm:text-xl font-bold text-gray-900'>{user.following.length}</span>
+                    </button>
+                    <button onClick={() => setListView('following')} className='text-left cursor-pointer hover:text-indigo-600'>
+                        <span className='sm:text-xl font-bold text-gray-900'>{following.length}</span>
                         <span className='text-xs sm:text-sm text-gray-500 ml-1.5'>Following</span>
-                    </div>
+                    </button>
                 </div>
             </div>
         </div>
+
+        {listView && (
+            <div className='fixed inset-0 z-40 flex items-center justify-center bg-black/30 p-4'>
+                <div className='w-full max-w-md rounded-lg bg-white shadow-xl'>
+                    <div className='flex items-center justify-between border-b border-gray-100 p-4'>
+                        <h2 className='font-semibold text-slate-900'>{listView === 'followers' ? 'Followers' : 'Following'}</h2>
+                        <button onClick={() => setListView(null)} className='rounded-md p-1 text-slate-500 hover:bg-slate-100'>
+                            <X className='size-5'/>
+                        </button>
+                    </div>
+                    <div className='max-h-96 overflow-y-auto p-3'>
+                        {visiblePeople.map((person) => (
+                            <button key={person._id || person} onClick={() => {
+                                setListView(null)
+                                if (person._id) navigate('/profile/' + person._id)
+                            }} className='flex w-full items-center gap-3 rounded-md p-3 text-left hover:bg-slate-50'>
+                                {person.profile_picture ? (
+                                    <img src={person.profile_picture} alt='' className='size-11 rounded-full object-cover' />
+                                ) : (
+                                    <span className='flex size-11 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500'>
+                                        {(person.full_name || person || '?').toString().charAt(0).toUpperCase()}
+                                    </span>
+                                )}
+                                <div className='min-w-0'>
+                                    <p className='truncate font-medium text-slate-800'>{person.full_name || person}</p>
+                                    {person.username && <p className='truncate text-sm text-slate-500'>@{person.username}</p>}
+                                </div>
+                            </button>
+                        ))}
+                        {visiblePeople.length === 0 && (
+                            <p className='py-8 text-center text-sm text-slate-500'>No users to show.</p>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )}
       
     </div>
   )

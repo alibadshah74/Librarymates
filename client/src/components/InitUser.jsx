@@ -1,7 +1,6 @@
 import { useAuth } from "@clerk/clerk-react"
 import { useDispatch } from "react-redux"
 import { fetchUser } from "../features/user/userSlice.js"
-import { fetchConnections } from "../features/connections/connectionsSlice.js"
 import { useEffect } from "react"
 
 const InitUser = () => {
@@ -16,7 +15,6 @@ const InitUser = () => {
       if (!token) return
 
       dispatch(fetchUser(token))
-      dispatch(fetchConnections(token))
     }
 
     loadData()

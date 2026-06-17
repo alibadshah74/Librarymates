@@ -1,11 +1,19 @@
 import React from 'react'
-import { assets, dummyUserData } from '../assets/assets'
 import { Link, useNavigate } from 'react-router-dom'
 import MenuItems from './MenuItems'
 import { CirclePlus, LogOut } from 'lucide-react'
 import {UserButton, useClerk} from '@clerk/clerk-react'
 import { useSelector} from 'react-redux'
 
+const StudyMaterialMark = () => (
+  <span className='flex size-11 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-sm'>
+    <svg viewBox='0 0 48 48' aria-hidden='true' className='size-7'>
+      <path d='M12 9.5h13.5c4.7 0 8.5 3.8 8.5 8.5v20.5H20.5c-4.7 0-8.5-3.8-8.5-8.5v-21Z' fill='none' stroke='currentColor' strokeWidth='3.2' strokeLinejoin='round' />
+      <path d='M18 17h10M18 23h14M18 29h9' stroke='currentColor' strokeWidth='3.2' strokeLinecap='round' />
+      <path d='M34 18h3.5c2 0 3.5 1.6 3.5 3.5v17H34V18Z' fill='currentColor' opacity='.22' />
+    </svg>
+  </span>
+)
 
 const Sidebar = ({sidebarOpen, setSidebarOpen}) => {
 
@@ -13,9 +21,15 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}) => {
   const user = useSelector((state)=> state.user.value)
   const {signOut} =useClerk()
   return (
-      <div className={`w-60 xl:w-72 bg-white border-r border-gray-200 flex flex-col justify-between items-center max-sm:absolute top-0  bottom-0 z-20 ${sidebarOpen ? 'translate-x-0' : 'max-sm:-translate-x-full'} transition-all duration-300 ease-in-out`}>
+      <div className={`h-screen w-60 shrink-0 xl:w-72 bg-white border-r border-gray-200 flex flex-col justify-between items-center max-sm:fixed top-0 bottom-0 z-20 ${sidebarOpen ? 'translate-x-0' : 'max-sm:-translate-x-full'} transition-all duration-300 ease-in-out`}>
         <div className='w-full'>
-              <img onClick = {() => navigate('/')} src={assets.logo} alt="" className='w-30 ml-7 my-1 cursor-pointer'/>
+              <button onClick={() => navigate('/')} className='mx-6 my-5 flex items-center gap-3 text-left cursor-pointer'>
+                <StudyMaterialMark />
+                <span>
+                  <span className='block text-2xl font-bold tracking-normal text-slate-900'>Study Mate</span>
+                  <span className='block text-xs font-medium uppercase tracking-[0.18em] text-slate-400'>Academic Hub</span>
+                </span>
+              </button>
               <hr className='border-gray-300 mb-8' />
 
               <MenuItems setSidebarOpen={setSidebarOpen}/>

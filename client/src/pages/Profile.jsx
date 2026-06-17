@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { dummyPostsData, dummyUserData } from '../assets/assets'
 import Loading from '../components/Loading'
 import UserProfileInfo from '../components/UserProfileInfo'
 import PostCard from '../components/PostCard'
+import StudyMaterialCard from '../components/StudyMaterialCard'
 import moment from 'moment'
 import ProfileModal from '../components/ProfileModal'
 import { useAuth } from '@clerk/clerk-react'
@@ -43,7 +43,7 @@ const Profile = () => {
   useEffect (()=>{
     if(profileId){
       fetchUser(profileId)
-    }else{
+    }else if (currentUser?._id){
       fetchUser(currentUser._id)
     }
   },[profileId, currentUser])
@@ -64,7 +64,7 @@ const Profile = () => {
         {/* Tabs  */}
         <div className='mt-6'>
           <div className='bg-white rounded-xl shadow p-1 flex max-w-md mx-auto'>
-            {["posts", "media", "likes"].map((tab)=>(
+            {["posts", "media", "resources"].map((tab)=>(
               <button onClick={()=> setActiveTab(tab)} key={tab} className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${activeTab === tab ? "bg-indigo-600 text-white" : "text-gray-600 hover:text-gray-900"}`}>
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
@@ -75,6 +75,7 @@ const Profile = () => {
           {activeTab === 'posts' && (
             <div className='mt-6 flex flex-col items-center gap-6'>
               {posts.map((post) => <PostCard key={post._id} post={post}/>)}
+              {posts.length === 0 && <p className='text-sm text-slate-500'>No posts yet.</p>}
             </div>
           )}
 
@@ -93,6 +94,19 @@ const Profile = () => {
                   </>
                 ))
               }
+            </div>
+          )}
+
+          {activeTab === 'resources' && (
+            <div className='mt-6 grid grid-cols-1 gap-4'>
+              {posts
+                .filter((post) => post.postType === 'study_material' && post.studyMaterial)
+                .map((post) => (
+                  <StudyMaterialCard key={post.studyMaterial._id} material={{ ...post.studyMaterial, uploadedBy: user }} compact />
+                ))}
+              {posts.filter((post) => post.postType === 'study_material' && post.studyMaterial).length === 0 && (
+                <p className='text-center text-sm text-slate-500'>No uploaded study materials yet.</p>
+              )}
             </div>
           )}
         </div>
