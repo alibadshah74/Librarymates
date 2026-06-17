@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Search, Users } from 'lucide-react'
 import UserCard from '../components/UserCard'
 import Loading from '../components/Loading'
-import api from '../api/axios'
+import api, { getApiErrorMessage } from '../api/axios'
 import { useAuth } from '@clerk/clerk-react'
 import toast from 'react-hot-toast'
 
@@ -13,6 +13,7 @@ const Discover = () => {
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 })
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [error, setError] = useState('')
   const { getToken } = useAuth()
   const requestIdRef = useRef(0)
 
@@ -24,12 +25,13 @@ const Discover = () => {
     return () => clearTimeout(timeout)
   }, [input])
 
-  const fetchUsers = useCallback(async (page = 1) => {
+  const fetchUsers = async (page = 1) => {
     if (search.trim().length < 3) {
       setUsers([])
       setPagination({ page: 1, pages: 1, total: 0 })
       setLoading(false)
       setLoadingMore(false)
+      setError('')
       return
     }
 
@@ -38,6 +40,7 @@ const Discover = () => {
 
     try {
       page === 1 ? setLoading(true) : setLoadingMore(true)
+      setError('')
       const { data } = await api.post('/api/user/discover', { input: search, page, limit: 12 }, {
         headers: { Authorization: `Bearer ${await getToken()}` }
       })
@@ -48,11 +51,14 @@ const Discover = () => {
         setUsers((prev) => page === 1 ? data.users : [...prev, ...data.users])
         setPagination(data.pagination)
       } else {
+        setError(data.message || 'Unable to load people.')
         toast.error(data.message)
       }
     } catch (error) {
       if (requestId === requestIdRef.current) {
-        toast.error(error.message)
+        const message = getApiErrorMessage(error, 'Unable to load people.')
+        setError(message)
+        toast.error(message)
       }
     } finally {
       if (requestId === requestIdRef.current) {
@@ -60,12 +66,12 @@ const Discover = () => {
         setLoadingMore(false)
       }
     }
-  }, [getToken, search])
+  }
 
   useEffect(() => {
     setPagination({ page: 1, pages: 1, total: 0 })
     fetchUsers(1)
-  }, [fetchUsers])
+  }, [search])
 
   const hasMore = useMemo(() => pagination.page < pagination.pages, [pagination])
 
@@ -98,6 +104,12 @@ const Discover = () => {
           <Loading height='50vh' />
         ) : (
           <>
+            {error && (
+              <div className='mb-4 rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-red-700'>
+                {error}
+              </div>
+            )}
+
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3'>
               {users.map((user) => (
                 <UserCard user={user} key={user._id} />

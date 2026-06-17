@@ -20,7 +20,7 @@ const CommentsView = ({ postId, comments, setComments, onClose }) => {
         })
         if (data.success) setComments(data.comments)
       } catch (err) {
-        toast.error(err.message)
+        toast.error(err.friendlyMessage || err.message)
         console.error(err)
       }
     }

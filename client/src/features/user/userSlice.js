@@ -10,24 +10,33 @@ const initialState = {
 }
 
 export const fetchUser =  createAsyncThunk('user/fetchUser', async ( token, { rejectWithValue } ) => {
-    if (!token) return rejectWithValue('NO_TOKEN')
-    const { data } = await api.get('/api/user/data', {
-        headers: {Authorization: `Bearer ${token}`}
-    })
-    if (!data.success) return rejectWithValue(data.message || 'User not found')
-    return data.user
+    try {
+        if (!token) return rejectWithValue('NO_TOKEN')
+        const { data } = await api.get('/api/user/data', {
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        if (!data.success) return rejectWithValue(data.message || 'User not found')
+        return data.user
+    } catch (error) {
+        return rejectWithValue(error.friendlyMessage || error.message)
+    }
 })
 
-export const updateUser =  createAsyncThunk('user/update', async ( {userData, token} ) => {
-    const { data } = await api.post('/api/user/update', userData, {
-        headers: {Authorization: `Bearer ${token}`}
-    })
-    if(data.success){
-        toast.success(data.message)
-        return data.user
-    }else{
+export const updateUser =  createAsyncThunk('user/update', async ( {userData, token}, { rejectWithValue } ) => {
+    try {
+        const { data } = await api.post('/api/user/update', userData, {
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        if(data.success){
+            toast.success(data.message)
+            return data.user
+        }
         toast.error(data.message)
-        return null
+        return rejectWithValue(data.message || 'Unable to update profile')
+    } catch (error) {
+        const message = error.friendlyMessage || error.message
+        toast.error(message)
+        return rejectWithValue(message)
     }
 })
 

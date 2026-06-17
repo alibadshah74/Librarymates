@@ -34,7 +34,7 @@ const UserCard = ({user}) => {
                 toast.error(data.message)
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.friendlyMessage || error.message)
         }
     }
   return (

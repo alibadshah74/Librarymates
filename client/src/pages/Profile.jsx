@@ -22,21 +22,30 @@ const Profile = () => {
   const [posts, setPosts] = useState([])
   const [activeTab, setActiveTab] = useState('posts')
   const [showEdit, setShowEdit] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   
 
   const fetchUser = async (profileId) =>{
     const token = await getToken()
     try {
+      setLoading(true)
+      setError('')
       const { data } = await api.post(`/api/user/profiles`, {profileId}, { headers : {Authorization: `Bearer ${token}`}
       })
       if(data.success){
         setUser(data.profile)
         setPosts(data.posts)
       }else{
+        setError(data.message || 'Unable to load profile.')
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      const message = error.friendlyMessage || error.message
+      setError(message)
+      toast.error(message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -48,7 +57,16 @@ const Profile = () => {
     }
   },[profileId, currentUser])
 
-  return user ? (
+  if (loading) return <Loading />
+  if (error || !user) {
+    return (
+      <div className='p-8 text-center text-sm text-slate-500'>
+        {error || 'Profile not found.'}
+      </div>
+    )
+  }
+
+  return (
     <div className='relative h-full overflow-y-scroll bg-gray-50 p-6'>
       <div className='max-w-3xl mx-auto'>
         {/* Profile Card  */}
@@ -115,7 +133,7 @@ const Profile = () => {
       
       {showEdit && <ProfileModal setShowEdit={setShowEdit}/>}
     </div>
-  ) : (<Loading />)
+  )
 }
 
 export default Profile

@@ -39,7 +39,7 @@ const ProfileModal = ({setShowEdit}) => {
 
             setShowEdit(false)
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.friendlyMessage || error.message)
         }
     }
   return (

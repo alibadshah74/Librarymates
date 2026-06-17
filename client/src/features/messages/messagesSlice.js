@@ -6,11 +6,16 @@ const initialState = {
     messages: []
 }
 
-export const  fetchMessages = createAsyncThunk('messages/fetchMessages', async ({token, userId}) => {
-    const { data } = await api.post('/api/message/get', {to_user_id: userId}, {
-        headers: { Authorization: `Bearer ${token}`}
-    })
-    return data.success ? data : null
+export const  fetchMessages = createAsyncThunk('messages/fetchMessages', async ({token, userId}, { rejectWithValue }) => {
+    try {
+        const { data } = await api.post('/api/message/get', {to_user_id: userId}, {
+            headers: { Authorization: `Bearer ${token}`}
+        })
+        if (!data.success) return rejectWithValue(data.message || 'Unable to load messages')
+        return data
+    } catch (error) {
+        return rejectWithValue(error.friendlyMessage || error.message)
+    }
 })
 
 const messagesSlice = createSlice({

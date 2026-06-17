@@ -44,7 +44,7 @@ const StudyMaterialCard = ({ material, compact = false }) => {
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 
@@ -62,7 +62,7 @@ const StudyMaterialCard = ({ material, compact = false }) => {
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 
@@ -81,7 +81,7 @@ const StudyMaterialCard = ({ material, compact = false }) => {
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 

@@ -47,7 +47,7 @@ const PostCard = ({ post }) => {
         toast(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 
@@ -86,7 +86,7 @@ const PostCard = ({ post }) => {
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     } finally {
       setSavingEdit(false)
     }

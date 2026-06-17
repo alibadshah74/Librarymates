@@ -22,7 +22,7 @@ const MateRequestsButton = () => {
         setRequests(data.requests)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 
@@ -40,7 +40,7 @@ const MateRequestsButton = () => {
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 

@@ -41,7 +41,7 @@ const StudyMaterialDetails = () => {
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     } finally {
       setLoading(false)
     }
@@ -57,7 +57,7 @@ const StudyMaterialDetails = () => {
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 
@@ -72,7 +72,7 @@ const StudyMaterialDetails = () => {
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 
@@ -89,7 +89,7 @@ const StudyMaterialDetails = () => {
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 
@@ -113,7 +113,7 @@ const StudyMaterialDetails = () => {
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     } finally {
       setSubmittingComment(false)
     }

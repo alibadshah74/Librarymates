@@ -15,6 +15,7 @@ const StudyMaterials = () => {
   const [materials, setMaterials] = useState([])
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 })
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [filters, setFilters] = useState({
     search: '',
@@ -35,15 +36,19 @@ const StudyMaterials = () => {
   const fetchMaterials = async () => {
     try {
       setLoading(true)
+      setError('')
       const { data } = await api.get(`/api/study-materials?${queryString}`)
       if (data.success) {
         setMaterials(data.materials)
         setPagination(data.pagination)
       } else {
+        setError(data.message || 'Unable to load study materials.')
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      const message = error.friendlyMessage || error.message
+      setError(message)
+      toast.error(message)
     } finally {
       setLoading(false)
     }
@@ -91,6 +96,11 @@ const StudyMaterials = () => {
 
         {loading ? <Loading /> : (
           <>
+            {error && (
+              <div className='mb-4 rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-red-700'>
+                {error}
+              </div>
+            )}
             <div className='mb-3 text-sm text-slate-500'>{pagination.total} materials found{filters.search && ' by relevance'}</div>
             <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
               {materials.map((material) => <StudyMaterialCard key={material._id} material={material} compact />)}

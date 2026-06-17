@@ -18,6 +18,8 @@ const ChatBox = () => {
   const [text, setText] = useState('') //state variable
   const [image, setImage] = useState(null)
   const [user, setUser] = useState(null)
+  const [loadingUser, setLoadingUser] = useState(true)
+  const [error, setError] = useState('')
   const messagesEndRef = useRef(null)
   const canMessage = currentUser?.following?.includes(userId) || currentUser?.followers?.includes(userId)
 
@@ -25,9 +27,12 @@ const ChatBox = () => {
     try {
       if (!canMessage) return
       const token = await getToken()
-      dispatch(fetchMessages({token, userId}))
+      const result = await dispatch(fetchMessages({token, userId}))
+      if (fetchMessages.rejected.match(result)) {
+        toast.error(result.payload || result.error.message)
+      }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 
@@ -52,7 +57,7 @@ const ChatBox = () => {
         throw new Error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 
@@ -67,6 +72,8 @@ const ChatBox = () => {
   useEffect(()=>{
     const fetchChatUser = async () => {
       try {
+        setLoadingUser(true)
+        setError('')
         const token = await getToken()
         const { data } = await api.post('/api/user/profiles', { profileId: userId }, {
           headers: { Authorization: `Bearer ${token}` }
@@ -74,10 +81,15 @@ const ChatBox = () => {
         if (data.success) {
           setUser(data.profile)
         } else {
+          setError(data.message || 'Unable to load chat user.')
           toast.error(data.message)
         }
       } catch (error) {
-        toast.error(error.message)
+        const message = error.friendlyMessage || error.message
+        setError(message)
+        toast.error(message)
+      } finally {
+        setLoadingUser(false)
       }
     }
     fetchChatUser()
@@ -87,7 +99,10 @@ const ChatBox = () => {
     messagesEndRef.current?.scrollIntoView({behavior: "smooth"})
   }, [messages])
 
-  return user && (
+  if (loadingUser) return <div className='p-8 text-center text-sm text-slate-500'>Loading chat...</div>
+  if (error || !user) return <div className='p-8 text-center text-sm text-slate-500'>{error || 'Chat user not found.'}</div>
+
+  return (
     <div className='flex flex-col h-screen'>
       <div className='flex items-center gap-2 p-2 md:px-10 xl:pl-42 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-300'>
         <img src={user.profile_picture} alt="" className='size-8 rounded-full'/>

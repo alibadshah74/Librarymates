@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom"
 import api from "../api/axios"
 import PostCard from "../components/PostCard"
 import { useAuth } from "@clerk/clerk-react"
+import toast from "react-hot-toast"
 
 const PostView = () => {
   const { id } = useParams()
@@ -10,21 +11,36 @@ const PostView = () => {
 
   const [sharedPost, setSharedPost] = useState(null)
   const [feedPosts, setFeedPosts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   useEffect(() => {
     // 🚨 IMPORTANT GUARD
     if (!isLoaded || !userId) return
 
-    fetchSharedPost()
-    fetchFeed()
+    const fetchData = async () => {
+      setLoading(true)
+      setError("")
+      await Promise.all([fetchSharedPost(), fetchFeed()])
+      setLoading(false)
+    }
+
+    fetchData()
   }, [id, isLoaded, userId])
 
   const fetchSharedPost = async () => {
+    try {
+      const res = await api.get(`/api/post/single/${id}`)
 
-    const res = await api.get(`/api/post/single/${id}`)
-
-    if (res.data.success) {
-      setSharedPost(res.data.post)
+      if (res.data.success) {
+        setSharedPost(res.data.post)
+      } else {
+        setError(res.data.message || "Post not found.")
+      }
+    } catch (error) {
+      const message = error.friendlyMessage || error.message
+      setError(message)
+      toast.error(message)
     }
   }
 
@@ -32,17 +48,21 @@ const PostView = () => {
     const token = await getToken()
     if (!token) return
 
-    const res = await api.get(
-      "/api/post/feed",
-      { headers: { Authorization: `Bearer ${token}` } }
-    )
+    try {
+      const res = await api.get(
+        "/api/post/feed",
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
 
-    if (res.data.success) {
-      setFeedPosts(res.data.posts)
+      if (res.data.success) {
+        setFeedPosts(res.data.posts)
+      }
+    } catch (error) {
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 
-  if (!isLoaded) {
+  if (!isLoaded || loading) {
     return <p className="text-center py-10">Loading...</p>
   }
 
@@ -53,6 +73,12 @@ const PostView = () => {
           <p className="text-sm text-gray-500">Shared Post</p>
           <PostCard post={sharedPost} />
         </>
+      )}
+
+      {error && (
+        <div className="rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-red-700">
+          {error}
+        </div>
       )}
 
       <hr />

@@ -79,7 +79,7 @@ const StoryModel = ({setShowModal, fetchStories}) => {
                 toast.error(data.message)
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.friendlyMessage || error.message)
         }
     }
 

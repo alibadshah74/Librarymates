@@ -18,6 +18,7 @@ import { fetchUser } from './features/user/userSlice.js'
 import { addMessage } from './features/messages/messagesSlice.js'
 import Notification from './components/Notification'
 import PostView from './pages/PostView'
+import { API_BASE_URL } from './api/axios.js'
 
 const App = () => {
   const {user} = useUser()
@@ -44,7 +45,7 @@ const App = () => {
 
   useEffect(()=> {
     if(user){
-      const eventSource = new EventSource(import.meta.env.VITE_BASEURL + '/api/message/' + user.id);
+      const eventSource = new EventSource(`${API_BASE_URL}/api/message/${user.id}`);
       
       eventSource.onmessage = (event)=>{
         const message = JSON.parse(event.data)
@@ -76,7 +77,8 @@ const App = () => {
          <Route path='create-post' element={<CreatePost/>}/>
          <Route path='study-materials' element={<StudyMaterials/>}/>
          <Route path='study-material/:id' element={<StudyMaterialDetails/>}/>
-         <Route path='/post/:id' element={<PostView />} />
+         <Route path='post/:id' element={<PostView />} />
+         <Route path='*' element={<div className='p-8 text-center text-sm text-slate-500'>Page not found.</div>} />
         </Route>
       </Routes>
     </>

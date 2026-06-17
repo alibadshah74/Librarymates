@@ -68,7 +68,7 @@ const ContextItems = ({
 
       closeMenu()
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.friendlyMessage || error.message)
     }
   }
 

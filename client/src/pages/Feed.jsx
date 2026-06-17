@@ -13,22 +13,28 @@ const Feed = () => {
 
   const [feeds, setFeeds] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const { getToken } = useAuth()
 
   const fetchFeeds = async () => {
     try {
       setLoading(true)
+      setError('')
       const { data } = await api.get('/api/post/feed', { headers: { Authorization: `Bearer ${await getToken()}`}})
 
       if(data.success){
         setFeeds(data.posts)
       }else{
+        setError(data.message || 'Unable to load your feed.')
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      const message = error.friendlyMessage || error.message
+      setError(message)
+      toast.error(message)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   useEffect(()=>{
@@ -45,9 +51,19 @@ const Feed = () => {
       <div>
         <StoriesBar/>
         <div className='p-4 space-y-6'>
+          {error && (
+            <div className='rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-red-700'>
+              {error}
+            </div>
+          )}
           {feeds.map((post)=>(
             <PostCard key={post._id} post={post}/>
           ))}
+          {!error && feeds.length === 0 && (
+            <div className='rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-slate-500'>
+              No posts to show yet.
+            </div>
+          )}
         </div>
       </div>
       {/* Right Sidebar */}

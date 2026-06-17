@@ -35,15 +35,15 @@ const RecentMessages = () => {
                 toast.error(data.message)
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.friendlyMessage || error.message)
         }
     }
 
     useEffect(()=>{
         if(user){
             fetchRecentMessages()
-            setInterval(fetchRecentMessages, 30000)
-            return ()=> {clearInterval()}
+            const interval = setInterval(fetchRecentMessages, 30000)
+            return ()=> {clearInterval(interval)}
         }
     }, [user])
 
