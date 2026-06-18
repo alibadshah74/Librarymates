@@ -1,4 +1,3 @@
-import { stringify } from "inngest/helpers/strings";
 import mongoose from "mongoose";
 
 const messageSchema = new mongoose.Schema({

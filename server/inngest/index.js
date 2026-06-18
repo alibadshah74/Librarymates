@@ -30,8 +30,7 @@ const generateUniqueUsername = async (baseUsername) => {
 
 // Inngest Function to save user data to a database
 const syncUserCreation = inngest.createFunction(
-    {id: 'sync-user-from-clerk'},
-    {event: 'clerk/user.created'},
+    { id: 'sync-user-from-clerk', triggers: [{ event: 'clerk/user.created' }] },
     async ({event}) =>{
         const {id, first_name, last_name, email_addresses, image_url} = event.data
         const username = await generateUniqueUsername(email_addresses[0].email_address.split('@')[0])
@@ -49,8 +48,7 @@ const syncUserCreation = inngest.createFunction(
 
 // Inngest function to update user data in database
 const syncUserUpdation = inngest.createFunction(
-    {id: 'update-user-from-clerk'},
-    {event: 'clerk/user.updated'},
+    { id: 'update-user-from-clerk', triggers: [{ event: 'clerk/user.updated' }] },
     async ({event}) =>{
         const {id, first_name, last_name, email_addresses, image_url} = event.data
     
@@ -66,8 +64,7 @@ const syncUserUpdation = inngest.createFunction(
 
 // Inngest function to delete user data in database
 const syncUserDeletion = inngest.createFunction(
-    {id: 'delete-user-from-clerk'},
-    {event: 'clerk/user.deleted'},
+    { id: 'delete-user-from-clerk', triggers: [{ event: 'clerk/user.deleted' }] },
     async ({event}) =>{
        const {id} = event.data
        await User.findByIdAndDelete(id)
@@ -77,8 +74,7 @@ const syncUserDeletion = inngest.createFunction(
 
 // Inngest Function to delete story after 24 hours
 const deleteStory = inngest.createFunction(
-    { id: 'story_delete'},
-    { event: 'app/story.delete'},
+    { id: 'story_delete', triggers: [{ event: 'app/story.delete' }] },
     async ({ event, step }) => {
         const { storyId } = event.data;
         const in24Hours = new Date(Date.now() + 24 * 60 * 60 * 1000)
@@ -91,8 +87,7 @@ const deleteStory = inngest.createFunction(
 )
 
 const sendNotificationOfUnSeenMessages = inngest.createFunction(
-    { id: "send-unseen-messages-notification" },
-    { cron: "TZ=America/New_York 0 9 * * *"}, // Every Day 9 AM
+    { id: "send-unseen-messages-notification", triggers: [{ cron: "TZ=America/New_York 0 9 * * *" }] }, // Every Day 9 AM
     async ({step}) => {
         const messages = await Message.find({seen: false}).populate('to_user_id');
         const unseenCount = {}
