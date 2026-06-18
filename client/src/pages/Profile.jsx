@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Loading from '../components/Loading'
 import UserProfileInfo from '../components/UserProfileInfo'
@@ -26,7 +26,7 @@ const Profile = () => {
   const [error, setError] = useState('')
   
 
-  const fetchUser = async (profileId) =>{
+  const fetchUser = useCallback(async (profileId) =>{
     const token = await getToken()
     try {
       setLoading(true)
@@ -47,7 +47,7 @@ const Profile = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [getToken])
 
   useEffect (()=>{
     if(profileId){
@@ -55,7 +55,7 @@ const Profile = () => {
     }else if (currentUser?._id){
       fetchUser(currentUser._id)
     }
-  },[profileId, currentUser])
+  },[currentUser, fetchUser, profileId])
 
   if (loading) return <Loading />
   if (error || !user) {

@@ -2,6 +2,7 @@ import imagekit from "../configs/imageKit.js"
 import User from "../models/User.js"
 import fs from 'fs'
 import Post from "../models/Post.js"
+import { clerkClient } from '@clerk/express'
 
 const normalizeUsername = (value = '') => value
     .toString()
@@ -34,14 +35,40 @@ export const generateUniqueUsername = async (baseUsername, excludeUserId = null)
     return candidate
 }
 
+const createUserFromClerk = async (userId) => {
+    const clerkUser = await clerkClient.users.getUser(userId)
+    const primaryEmail = clerkUser.emailAddresses.find((email) => email.id === clerkUser.primaryEmailAddressId)
+        || clerkUser.emailAddresses[0]
+
+    if (!primaryEmail?.emailAddress) {
+        throw new Error('Authenticated Clerk user has no email address')
+    }
+
+    const firstName = clerkUser.firstName || ''
+    const lastName = clerkUser.lastName || ''
+    const fullName = `${firstName} ${lastName}`.trim() || primaryEmail.emailAddress.split('@')[0]
+    const username = await generateUniqueUsername(clerkUser.username || primaryEmail.emailAddress.split('@')[0])
+
+    return User.findByIdAndUpdate(
+        userId,
+        {
+            $setOnInsert: {
+                _id: userId,
+                email: primaryEmail.emailAddress,
+                full_name: fullName,
+                profile_picture: clerkUser.imageUrl || '',
+                username
+            }
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+    )
+}
+
 // Get user data using userId
 export const getUserData = async (req, res) => {
     try {
         const { userId } = req.auth()
-        const user = await User.findById(userId)
-        if (!user) {
-            return res.json({ success: false, message: "User not found" })
-        }
+        const user = await User.findById(userId) || await createUserFromClerk(userId)
         res.json({ success: true, user })
     } catch (error) {
         console.log(error);

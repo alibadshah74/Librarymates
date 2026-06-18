@@ -9,12 +9,11 @@ import Profile from './pages/Profile'
 import CreatePost from './pages/CreatePost'
 import StudyMaterials from './pages/StudyMaterials'
 import StudyMaterialDetails from './pages/StudyMaterialDetails'
-import { useUser, useAuth } from '@clerk/clerk-react'
+import { useUser } from '@clerk/clerk-react'
 import  Layout  from './pages/Layout'
 import toast, { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { fetchUser } from './features/user/userSlice.js'
 import { addMessage } from './features/messages/messagesSlice.js'
 import Notification from './components/Notification'
 import PostView from './pages/PostView'
@@ -22,22 +21,10 @@ import { API_BASE_URL } from './api/axios.js'
 
 const App = () => {
   const {user} = useUser()
-  const { getToken } = useAuth()
   const { pathname } = useLocation()
   const pathnameRef = useRef(pathname)
 
   const dispatch = useDispatch()
-
-  useEffect(()=>{
-    const fetchData = async () => {
-      if(user){
-      const token = await getToken()
-      dispatch(fetchUser(token))
-    }
-    }
-    fetchData()
-    
-  }, [user, getToken, dispatch])
 
   useEffect(()=> {
     pathnameRef.current = pathname

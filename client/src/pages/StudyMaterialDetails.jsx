@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Download, Eye, FileText, Heart, MessageCircle, Send, Share2 } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
@@ -30,7 +30,7 @@ const StudyMaterialDetails = () => {
     }) : prev)
   }
 
-  const fetchMaterial = async () => {
+  const fetchMaterial = useCallback(async () => {
     try {
       setLoading(true)
       const { data } = await api.get(`/api/study-materials/${id}`)
@@ -45,7 +45,7 @@ const StudyMaterialDetails = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id])
 
   const handleDownload = async () => {
     try {
@@ -121,7 +121,7 @@ const StudyMaterialDetails = () => {
 
   useEffect(() => {
     fetchMaterial()
-  }, [id])
+  }, [fetchMaterial])
 
   if (loading) return <Loading />
   if (!material) return <div className='p-8 text-center text-sm text-slate-500'>Study material not found.</div>

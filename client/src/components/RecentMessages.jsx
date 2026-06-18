@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import moment from 'moment'
 import { useAuth, useUser } from '@clerk/clerk-react'
@@ -11,7 +11,7 @@ const RecentMessages = () => {
     const {user} = useUser()
     const { getToken } = useAuth()
 
-    const fetchRecentMessages = async () =>{
+    const fetchRecentMessages = useCallback(async () =>{
         try {
             const token = await getToken()
             const { data } = await api.get('/api/user/recent-messages', {
@@ -37,7 +37,7 @@ const RecentMessages = () => {
         } catch (error) {
             toast.error(error.friendlyMessage || error.message)
         }
-    }
+    }, [getToken])
 
     useEffect(()=>{
         if(user){
@@ -45,7 +45,7 @@ const RecentMessages = () => {
             const interval = setInterval(fetchRecentMessages, 30000)
             return ()=> {clearInterval(interval)}
         }
-    }, [user])
+    }, [fetchRecentMessages, user])
 
   return (
     <div className='bg-white max-w-xs mt-4 p-4 min-h-20 rounded-md shadow text-xs text-slate-800'>

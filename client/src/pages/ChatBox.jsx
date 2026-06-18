@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ImageIcon, SendHorizonal } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
@@ -23,7 +23,7 @@ const ChatBox = () => {
   const messagesEndRef = useRef(null)
   const canMessage = currentUser?.following?.includes(userId) || currentUser?.followers?.includes(userId)
 
-  const fetchUserMessages = async () => {
+  const fetchUserMessages = useCallback(async () => {
     try {
       if (!canMessage) return
       const token = await getToken()
@@ -34,7 +34,7 @@ const ChatBox = () => {
     } catch (error) {
       toast.error(error.friendlyMessage || error.message)
     }
-  }
+  }, [canMessage, dispatch, getToken, userId])
 
   const sendMessage = async () =>{
     try {
@@ -67,7 +67,7 @@ const ChatBox = () => {
     return ()=>{
       dispatch(resetMessages())
     }
-  },[userId, canMessage])
+  },[dispatch, fetchUserMessages])
 
   useEffect(()=>{
     const fetchChatUser = async () => {
@@ -93,7 +93,7 @@ const ChatBox = () => {
       }
     }
     fetchChatUser()
-  },[userId, canMessage])
+  },[getToken, userId])
 
   useEffect(()=> {
     messagesEndRef.current?.scrollIntoView({behavior: "smooth"})

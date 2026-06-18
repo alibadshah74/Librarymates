@@ -1,7 +1,7 @@
-import { useAuth } from "@clerk/clerk-react"
-import { useDispatch } from "react-redux"
-import { fetchUser } from "../features/user/userSlice.js"
-import { useEffect } from "react"
+import { useAuth } from '@clerk/clerk-react'
+import { useDispatch } from 'react-redux'
+import { fetchUser } from '../features/user/userSlice.js'
+import { useEffect } from 'react'
 
 const InitUser = () => {
   const { isLoaded, userId, getToken } = useAuth()
@@ -18,7 +18,7 @@ const InitUser = () => {
     }
 
     loadData()
-  }, [isLoaded, userId])
+  }, [dispatch, getToken, isLoaded, userId])
 
   return null
 }

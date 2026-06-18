@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Bell, Check, X } from 'lucide-react'
 import { useAuth } from '@clerk/clerk-react'
 import { useDispatch } from 'react-redux'
@@ -12,7 +12,7 @@ const MateRequestsButton = () => {
   const { getToken } = useAuth()
   const dispatch = useDispatch()
 
-  const refreshRequests = async () => {
+  const refreshRequests = useCallback(async () => {
     try {
       const token = await getToken()
       const { data } = await api.get('/api/user/mate-requests', {
@@ -24,7 +24,7 @@ const MateRequestsButton = () => {
     } catch (error) {
       toast.error(error.friendlyMessage || error.message)
     }
-  }
+  }, [getToken])
 
   const respond = async (id, action) => {
     try {
@@ -48,7 +48,7 @@ const MateRequestsButton = () => {
     refreshRequests()
     const interval = setInterval(refreshRequests, 30000)
     return () => clearInterval(interval)
-  }, [])
+  }, [refreshRequests])
 
   return (
     <div className='relative flex justify-end'>

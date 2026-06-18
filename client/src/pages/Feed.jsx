@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { assets } from '../assets/assets'
 import Loading from '../components/Loading'
 import StoriesBar from '../components/StoriesBar'
@@ -16,7 +16,7 @@ const Feed = () => {
   const [error, setError] = useState('')
   const { getToken } = useAuth()
 
-  const fetchFeeds = async () => {
+  const fetchFeeds = useCallback(async () => {
     try {
       setLoading(true)
       setError('')
@@ -35,11 +35,11 @@ const Feed = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [getToken])
 
   useEffect(()=>{
     fetchFeeds()
-  },[])
+  },[fetchFeeds])
 
 
   return !loading ? (

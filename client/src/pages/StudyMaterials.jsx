@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
@@ -33,7 +33,7 @@ const StudyMaterials = () => {
     return params.toString()
   }, [filters])
 
-  const fetchMaterials = async () => {
+  const fetchMaterials = useCallback(async () => {
     try {
       setLoading(true)
       setError('')
@@ -52,11 +52,11 @@ const StudyMaterials = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [queryString])
 
   useEffect(() => {
     fetchMaterials()
-  }, [queryString])
+  }, [fetchMaterials])
 
   useEffect(() => {
     const timeout = setTimeout(() => {

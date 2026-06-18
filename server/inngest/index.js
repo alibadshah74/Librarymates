@@ -28,12 +28,18 @@ const generateUniqueUsername = async (baseUsername) => {
     return candidate
 }
 
-// Inngest Function to save user data to a database
 const syncUserCreation = inngest.createFunction(
     { id: 'sync-user-from-clerk', triggers: [{ event: 'clerk/user.created' }] },
-    async ({event}) =>{
-        const {id, first_name, last_name, email_addresses, image_url} = event.data
-        const username = await generateUniqueUsername(email_addresses[0].email_address.split('@')[0])
+    async ({ event }) => {
+
+        console.log("========== USER CREATED EVENT ==========");
+        console.log(event.data);
+
+        const { id, first_name, last_name, email_addresses, image_url } = event.data;
+
+        const username = await generateUniqueUsername(
+            email_addresses[0].email_address.split('@')[0]
+        );
 
         const userData = {
             _id: id,
@@ -41,10 +47,15 @@ const syncUserCreation = inngest.createFunction(
             full_name: first_name + " " + last_name,
             profile_picture: image_url,
             username
-        }
-        await User.create(userData)
+        };
+
+        console.log("Creating User:", userData);
+
+        await User.create(userData);
+
+        console.log("User Saved Successfully");
     }
-)
+);
 
 // Inngest function to update user data in database
 const syncUserUpdation = inngest.createFunction(

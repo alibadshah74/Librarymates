@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Search, Users } from 'lucide-react'
 import UserCard from '../components/UserCard'
 import Loading from '../components/Loading'
@@ -25,7 +25,7 @@ const Discover = () => {
     return () => clearTimeout(timeout)
   }, [input])
 
-  const fetchUsers = async (page = 1) => {
+  const fetchUsers = useCallback(async (page = 1) => {
     if (search.trim().length < 3) {
       setUsers([])
       setPagination({ page: 1, pages: 1, total: 0 })
@@ -66,12 +66,12 @@ const Discover = () => {
         setLoadingMore(false)
       }
     }
-  }
+  }, [getToken, search])
 
   useEffect(() => {
     setPagination({ page: 1, pages: 1, total: 0 })
     fetchUsers(1)
-  }, [search])
+  }, [fetchUsers, search])
 
   const hasMore = useMemo(() => pagination.page < pagination.pages, [pagination])
 

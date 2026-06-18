@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Eye, MessageSquare } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
@@ -11,7 +11,7 @@ const Messages = () => {
   const navigate = useNavigate()
   const { getToken } = useAuth()
 
-  const fetchPeople = async () => {
+  const fetchPeople = useCallback(async () => {
     try {
       const { data } = await api.get('/api/user/network', {
         headers: { Authorization: `Bearer ${await getToken()}` }
@@ -24,11 +24,11 @@ const Messages = () => {
     } catch (error) {
       toast.error(error.friendlyMessage || error.message)
     }
-  }
+  }, [getToken])
 
   useEffect(() => {
     fetchPeople()
-  }, [])
+  }, [fetchPeople])
 
   return (
     <div className='min-h-screen relative bg-slate-50'>

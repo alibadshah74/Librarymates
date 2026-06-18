@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import api from "../api/axios"
 import PostCard from "../components/PostCard"
@@ -14,21 +14,7 @@ const PostView = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
-  useEffect(() => {
-    // 🚨 IMPORTANT GUARD
-    if (!isLoaded || !userId) return
-
-    const fetchData = async () => {
-      setLoading(true)
-      setError("")
-      await Promise.all([fetchSharedPost(), fetchFeed()])
-      setLoading(false)
-    }
-
-    fetchData()
-  }, [id, isLoaded, userId])
-
-  const fetchSharedPost = async () => {
+  const fetchSharedPost = useCallback(async () => {
     try {
       const res = await api.get(`/api/post/single/${id}`)
 
@@ -42,9 +28,9 @@ const PostView = () => {
       setError(message)
       toast.error(message)
     }
-  }
+  }, [id])
 
-  const fetchFeed = async () => {
+  const fetchFeed = useCallback(async () => {
     const token = await getToken()
     if (!token) return
 
@@ -60,7 +46,20 @@ const PostView = () => {
     } catch (error) {
       toast.error(error.friendlyMessage || error.message)
     }
-  }
+  }, [getToken])
+
+  useEffect(() => {
+    if (!isLoaded || !userId) return
+
+    const fetchData = async () => {
+      setLoading(true)
+      setError("")
+      await Promise.all([fetchSharedPost(), fetchFeed()])
+      setLoading(false)
+    }
+
+    fetchData()
+  }, [fetchFeed, fetchSharedPost, isLoaded, userId])
 
   if (!isLoaded || loading) {
     return <p className="text-center py-10">Loading...</p>
@@ -84,8 +83,8 @@ const PostView = () => {
       <hr />
 
       {feedPosts
-        .filter(p => p._id !== id)
-        .map(post => (
+        .filter((post) => post._id !== id)
+        .map((post) => (
           <PostCard key={post._id} post={post} />
         ))}
     </div>

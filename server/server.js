@@ -37,7 +37,9 @@ app.use((req, res, next) => {
     const startedAt = Date.now()
     res.on('finish', () => {
         const duration = Date.now() - startedAt
-        const level = res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info'
+        if (res.statusCode < 400 && process.env.LOG_SUCCESS_REQUESTS !== 'true') return
+
+        const level = res.statusCode >= 500 ? 'error' : 'warn'
         console[level](`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`)
     })
     next()
